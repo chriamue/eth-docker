@@ -20,9 +20,6 @@ services:
   geth:
     build: geth
     restart: on-failure
-    links:
-      - bootstrap
-      - netstats
     env_file: .env
     entrypoint: /root/start.sh
     volumes:
