@@ -16,7 +16,7 @@ Change in files:
 ## Connect using Wallet
 
 ```bash
-
+./ethereumwallet --rpc "http://localhost:8545"
 ```
 
 ## Attach
