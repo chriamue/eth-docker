@@ -1,23 +1,23 @@
 [
+  {
+    "name"              : "node-app",
+    "script"            : "app.js",
+    "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+    "merge_logs"        : false,
+    "watch"             : false,
+    "max_restarts"      : 10,
+    "exec_interpreter"  : "node",
+    "exec_mode"         : "fork_mode",
+    "env":
     {
-        "name": "node-app",
-        "script": "app.js",
-        "log_date_format": "YYYY-MM-DD HH:mm Z",
-        "merge_logs": false,
-        "watch": false,
-        "max_restarts": 10,
-        "exec_interpreter": "node",
-        "exec_mode": "fork_mode",
-        "env": {
-            "NODE_ENV": "production",
-            "RPC_HOST": "localhost",
-            "RPC_PORT": "8545",
-            "LISTENING_PORT": "30303",
-            "INSTANCE_NAME": "<HOSTNAME>",
-            "CONTACT_DETAILS": "",
-            "WS_SERVER": "wss://<WS_SERVER>:<WS_PORT>",
-            "WS_SECRET": "<WS_SECRET>",
-            "VERBOSITY": 2
-        }
+      "NODE_ENV"        : "production",
+      "RPC_HOST"        : "localhost",
+      "RPC_PORT"        : "8545",
+      "LISTENING_PORT"  : "30303",
+      "INSTANCE_NAME"   : "<HOSTNAME>",
+      "WS_SERVER": "ws://<WS_SERVER>:<WS_PORT>",
+      "WS_SECRET": "<WS_SECRET>",
+      "VERBOSITY"       : 2
     }
+  }
 ]

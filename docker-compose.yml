@@ -1,43 +1,41 @@
 version: "3"
-
 services:
-
-  eth-netstats:
-    build: eth-netstats/
-    ports:
-     - "3000:3000"
-    env_file: .env
-    volumes:
-     - /etc/localtime:/etc/localtime:ro
-     - "./data:/data"
-
-  geth:
-    build: geth/
-    links:
-     - eth-bootstrap
-     - eth-netstats
-    env_file: .env
-    entrypoint: /root/run.sh
-    volumes:
-      - ./data/genesis.json:/root/data/genesis.json:ro
-      - ./data/keystore:/root/.ethereum/chain/keystore:rw
-      - /etc/localtime:/etc/localtime:ro
-    command: '--datadir=~/.ethereum/chain --rpccorsdomain="*" --networkid=$NETWORKID --rpc --bootnodes="enode://$ENODE@BOOTSTRAP:30303"'
-
-  eth-bootstrap:
-    build: geth/
+  bootstrap:
+    build: geth
     restart: on-failure
     hostname: bootstrap
-    #links:
-    #  - eth-netstats
+    links:
+      - netstats
     env_file: .env
-    entrypoint: /root/run.sh
-    command: '--datadir=~/.ethereum/chain --nodekeyhex=$NODEKEY_HEX --rpcapi "db,personal,eth,net,web3" --rpccorsdomain="*" --networkid=$NETWORKID --rpc --rpcaddr="0.0.0.0"'
+    entrypoint: /root/start.sh
+    command: '--datadir=$DATA_DIR --nodekeyhex=$NODEKEY_HEX --rpcapi "db,personal,eth,net,web3" --rpccorsdomain="*" --networkid=$NETWORKID --rpc --rpcaddr="0.0.0.0"'
     volumes:
-      - ./data/genesis.json:/root/data/genesis.json:ro
-      - ./data/keystore:/root/.ethereum/chain/keystore:rw
+      - ./data/genesis.json:/root/files/genesis.json:ro
+      - ./data/keystore:$DATA_DIR/keystore:rw
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "30303:30303"
       - "30303:30303/udp"
       - "8545:8545"
+  geth:
+    build: geth
+    restart: on-failure
+    links:
+      - bootstrap
+      - netstats
+    env_file: .env
+    entrypoint: /root/start.sh
+    volumes:
+      - ./data/genesis.json:/root/files/genesis.json:ro
+      - ./data/keystore:$DATA_DIR/keystore:rw
+      - /etc/localtime:/etc/localtime:ro
+    command: '--datadir=$DATA_DIR --rpccorsdomain="*" --networkid=$NETWORKID --rpc --bootnodes="enode://$ENODE@XXX:30303"'
+  netstats:
+    build: eth-netstats
+    restart: on-failure
+    container_name: netstats
+    env_file: .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
