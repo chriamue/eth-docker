@@ -13,6 +13,12 @@ Change in files:
 
  - .env
 
+## Init using geth
+
+```bash
+geth init data/genesis.json
+```
+
 ## Connect using Wallet
 
 ```bash
@@ -22,5 +28,11 @@ Change in files:
 ## Attach
 
 ```bash
-docker exec -it ethereumdocker_eth_1 geth attach ipc://root/.ethereum/chain/geth.ipc
+docker exec -it ethdocker_eth_1 geth attach ipc://root/.ethereum/chain/geth.ipc
+```
+
+## Mining
+
+```bash
+docker-compose up -d gethminer
 ```
