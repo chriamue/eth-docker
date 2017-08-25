@@ -1,5 +1,6 @@
 version: "3"
 services:
+  
   bootstrap:
     build: geth
     restart: on-failure
@@ -17,6 +18,7 @@ services:
       - "30303:30303"
       - "30303:30303/udp"
       - "8545:8545"
+  
   geth:
     build: geth
     restart: on-failure
@@ -27,6 +29,18 @@ services:
       - ./data/keystore:$DATA_DIR/keystore:rw
       - /etc/localtime:/etc/localtime:ro
     command: '--datadir=$DATA_DIR --rpccorsdomain="*" --networkid=$NETWORKID --rpc --bootnodes="enode://$ENODE@XXX:30303"'
+  
+  gethminer:
+    build: geth
+    restart: on-failure
+    env_file: .env
+    entrypoint: /root/start.sh
+    volumes:
+      - ./data/genesis.json:/root/files/genesis.json:ro
+      - ./data/keystore:$DATA_DIR/keystore:rw
+      - /etc/localtime:/etc/localtime:ro
+    command: '--datadir=$DATA_DIR --etherbase 0 --mine --rpccorsdomain="*" --networkid=$NETWORKID --rpc --bootnodes="enode://$ENODE@XXX:30303"'
+
   netstats:
     build: eth-netstats
     restart: on-failure
@@ -36,3 +50,9 @@ services:
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "3000:3000"
+  
+  ethminer:
+    build: ethminer
+    command: '--farm "http://$BOOTSTRAP_HOSTNAME"'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
