@@ -56,3 +56,11 @@ services:
     command: '--farm "http://$BOOTSTRAP_HOSTNAME"'
     volumes:
       - /etc/localtime:/etc/localtime:ro
+
+  ethminer-cuda:
+    build: 
+     context: ethminer
+     dockerfile: Dockerfile_cuda
+    command: '-G -S $BOOTSTRAP_HOSTNAME:30303 -O 0x89ad0c7a4a544b2c75bf6cef730fd80b5a1feb38.w1/farm1 --farm-recheck 200'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
