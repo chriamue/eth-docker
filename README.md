@@ -28,11 +28,11 @@ geth init data/genesis.json
 ## Attach
 
 ```bash
-docker exec -it ethdocker_eth_1 geth attach ipc://root/.ethereum/chain/geth.ipc
+docker-compose exec eth geth attach ipc://root/.ethereum/chain/geth.ipc
 ```
 
 ## Mining
 
 ```bash
-docker-compose up -d gethminer
+docker-compose up -d --compatibility gethminer
 ```
