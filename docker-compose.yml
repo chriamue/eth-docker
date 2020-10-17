@@ -1,11 +1,9 @@
 version: "3"
 services:
-  
   bootstrap:
     build: geth
     restart: on-failure
-    hostname: bootstrap
-    links:
+    depends_on:
       - netstats
     env_file: .env
     entrypoint: /root/start.sh
@@ -18,7 +16,7 @@ services:
       - "30303:30303"
       - "30303:30303/udp"
       - "8545:8545"
-  
+
   geth:
     build: geth
     restart: on-failure
@@ -28,39 +26,30 @@ services:
       - ./data/genesis.json:/root/files/genesis.json:ro
       - ./data/keystore:$DATA_DIR/keystore:rw
       - /etc/localtime:/etc/localtime:ro
-    command: '--datadir=$DATA_DIR --rpccorsdomain="*" --networkid=$NETWORKID --rpc --bootnodes="enode://$ENODE@XXX:30303"'
-  
+    command: '--datadir=$DATA_DIR --rpccorsdomain="*" --networkid=$NETWORKID --rpc --bootnodes="enode://$ENODE@$BOOTSTRAP_HOSTNAME:30303"'
+
   gethminer:
     build: geth
+    depends_on:
+      - bootstrap
     restart: on-failure
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
     env_file: .env
     entrypoint: /root/start.sh
     volumes:
       - ./data/genesis.json:/root/files/genesis.json:ro
       - ./data/keystore:$DATA_DIR/keystore:rw
       - /etc/localtime:/etc/localtime:ro
-    command: '--datadir=$DATA_DIR --etherbase 0 --mine --rpccorsdomain="*" --networkid=$NETWORKID --rpc --bootnodes="enode://$ENODE@XXX:30303"'
+    command: '--datadir=$DATA_DIR --mine --minerthreads=1 --rpccorsdomain="*" --networkid=$NETWORKID --rpc --bootnodes="enode://$ENODE@$BOOTSTRAP_HOSTNAME:30303"'
 
   netstats:
     build: eth-netstats
     restart: on-failure
-    container_name: netstats
     env_file: .env
     volumes:
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "3000:3000"
-  
-  ethminer:
-    build: ethminer
-    command: '--farm "http://$BOOTSTRAP_HOSTNAME"'
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-
-  ethminer-cuda:
-    build: 
-     context: ethminer
-     dockerfile: Dockerfile_cuda
-    command: '-G -S $BOOTSTRAP_HOSTNAME:30303 -O 0x89ad0c7a4a544b2c75bf6cef730fd80b5a1feb38.w1/farm1 --farm-recheck 200'
-    volumes:
-      - /etc/localtime:/etc/localtime:ro

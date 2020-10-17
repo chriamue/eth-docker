@@ -2,12 +2,15 @@
   "config": {
     "chainId": 313737,
     "homesteadBlock": 0,
+    "eip150Block": 0,
     "eip155Block": 0,
-    "eip158Block": 0
+    "eip158Block": 0,
+    "byzantiumBlock": 0,
+    "constantinopleBlock": 0
   },
   "nonce": "0x63687269616d7565",
   "mixhash": "0x69756c69696167756b0000000000000000000000000000000000000000000000",
-  "difficulty": "0x256",
+  "difficulty": "0x1",
   "coinbase": "0x89ad0c7a4a544b2c75bf6cef730fd80b5a1feb38",
   "timestamp": "0x0",
   "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
