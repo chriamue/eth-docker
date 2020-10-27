@@ -2,52 +2,47 @@ version: "3"
 services:
   bootstrap:
     build: geth
-    restart: on-failure
     depends_on:
       - netstats
     env_file: .env
     entrypoint: /root/start.sh
-    command: '--datadir=$DATA_DIR --nodekeyhex=$NODEKEY_HEX --rpcapi "db,personal,eth,net,web3" --rpccorsdomain="*" --networkid=$NETWORKID --rpc --rpcaddr="0.0.0.0"'
+    command: '--datadir=$DATA_DIR --identity "Bootstrap$NODENAME" --nodekeyhex=$NODEKEY_HEX --rpcapi "db,personal,eth,net,web3" --rpccorsdomain="*" --networkid=$NETWORKID --rpc --rpcaddr="0.0.0.0 --port=$BOOTSTRAP_PORT"  --ethstats Boot$NODENAME:$WS_SECRET@$WS_SERVER:$WS_PORT'
     volumes:
       - ./data/genesis.json:/root/files/genesis.json:ro
       - ./data/keystore:$DATA_DIR/keystore:rw
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - "30303:30303"
-      - "30303:30303/udp"
-      - "8545:8545"
+      - "$BOOTSTRAP_PORT:$BOOTSTRAP_PORT"
+      - "$BOOTSTRAP_PORT:$BOOTSTRAP_PORT/udp"
 
   geth:
     build: geth
-    restart: on-failure
+    depends_on:
+      - bootstrap
     env_file: .env
     entrypoint: /root/start.sh
     volumes:
       - ./data/genesis.json:/root/files/genesis.json:ro
       - ./data/keystore:$DATA_DIR/keystore:rw
       - /etc/localtime:/etc/localtime:ro
-    command: '--datadir=$DATA_DIR --rpccorsdomain="*" --networkid=$NETWORKID --rpc --bootnodes="enode://$ENODE@$BOOTSTRAP_HOSTNAME:30303"'
+    command: '--datadir=$DATA_DIR --identity "$NODENAME" --rpcapi "db,personal,eth,net,web3" --rpccorsdomain="*" --networkid=$NETWORKID --rpc --bootnodes="enode://$ENODE@$BOOTSTRAP_HOSTNAME:$BOOTSTRAP_PORT" --ethstats $NODENAME:$WS_SECRET@$WS_SERVER:$WS_PORT'
+    ports:
+      - "8545:8545"
 
   gethminer:
     build: geth
     depends_on:
       - bootstrap
-    restart: on-failure
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
     env_file: .env
     entrypoint: /root/start.sh
     volumes:
       - ./data/genesis.json:/root/files/genesis.json:ro
       - ./data/keystore:$DATA_DIR/keystore:rw
       - /etc/localtime:/etc/localtime:ro
-    command: '--datadir=$DATA_DIR --mine --minerthreads=1 --rpccorsdomain="*" --networkid=$NETWORKID --rpc --bootnodes="enode://$ENODE@$BOOTSTRAP_HOSTNAME:30303"'
+    command: '--datadir=$DATA_DIR --identity "Miner$NODENAME" --mine --minerthreads=1 --rpccorsdomain="*" --networkid=$NETWORKID --rpc --bootnodes="enode://$ENODE@$BOOTSTRAP_HOSTNAME:$BOOTSTRAP_PORT" --ethstats Miner$NODENAME:$WS_SECRET@$WS_SERVER:$WS_PORT'
 
   netstats:
     build: eth-netstats
-    restart: on-failure
     env_file: .env
     volumes:
       - /etc/localtime:/etc/localtime:ro
